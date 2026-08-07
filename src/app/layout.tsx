@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Lora } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { siteConfig } from "@/data/site";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -15,7 +16,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Nosso Casamento",
+  title: `${siteConfig.couple} · Nosso Casamento`,
   description: "Fotos, vestimenta e presentes do nosso casamento.",
 };
 

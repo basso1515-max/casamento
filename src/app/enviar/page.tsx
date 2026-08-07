@@ -1,18 +1,21 @@
-export default function EnviarPage() {
+import UploadFlow from "@/components/UploadFlow";
+
+export default async function EnviarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ t?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const initialToken = typeof params.t === "string" ? params.t : undefined;
+
   return (
     <main className="inner-page upload-page">
       <section className="page-heading compact-heading">
         <span className="eyebrow">❦ ajude a contar nossa história ❦</span>
         <h1>Compartilhe suas fotos</h1>
-        <p>Digite o código recebido no casamento. Na próxima etapa do projeto, esta tela será conectada ao Supabase para liberar os uploads.</p>
+        <p>Use seu código pessoal para enviar os momentos que você registrou. Assim que o envio terminar, eles entram no álbum do casamento.</p>
       </section>
-
-      <section className="token-card">
-        <label htmlFor="token">Código do casamento</label>
-        <input id="token" name="token" type="text" placeholder="Ex.: JARDIM-8F2K" disabled />
-        <button className="button-primary" disabled>Continuar</button>
-        <small>Upload ainda não conectado — esta é a interface inicial.</small>
-      </section>
+      <UploadFlow initialToken={initialToken} />
     </main>
   );
 }

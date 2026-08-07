@@ -1,47 +1,63 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { demoPhotos } from "@/data/site";
+import type { WeddingPhoto } from "@/types/photo";
 
-export default function PhotoCarousel() {
+type Props = {
+  photos: WeddingPhoto[];
+};
+
+export default function PhotoCarousel({ photos }: Props) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    if (active >= photos.length) setActive(0);
+  }, [active, photos.length]);
+
+  useEffect(() => {
+    if (photos.length <= 1) return;
     const timer = window.setInterval(() => {
-      setActive((current) => (current + 1) % demoPhotos.length);
+      setActive((current) => (current + 1) % photos.length);
     }, 5000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [photos.length]);
 
-  const previous = () => setActive((current) => (current - 1 + demoPhotos.length) % demoPhotos.length);
-  const next = () => setActive((current) => (current + 1) % demoPhotos.length);
+  if (!photos.length) return null;
+
+  const previous = () =>
+    setActive((current) => (current - 1 + photos.length) % photos.length);
+  const next = () => setActive((current) => (current + 1) % photos.length);
+  const photo = photos[active];
 
   return (
     <section className="carousel" aria-label="Fotos em destaque">
       <div className="carousel-frame">
-        <Image
-          key={demoPhotos[active].src}
-          src={demoPhotos[active].src}
-          alt={demoPhotos[active].alt}
-          fill
-          priority
-          sizes="(max-width: 800px) 92vw, 900px"
+        <img
+          key={photo.src}
+          src={photo.src}
+          alt={photo.alt}
           className="carousel-image"
         />
         <div className="carousel-wash" />
-        <button className="carousel-arrow left" onClick={previous} aria-label="Foto anterior">←</button>
-        <button className="carousel-arrow right" onClick={next} aria-label="Próxima foto">→</button>
-        <div className="carousel-dots" aria-label="Selecionar foto">
-          {demoPhotos.map((_, index) => (
-            <button
-              key={index}
-              className={index === active ? "dot active" : "dot"}
-              onClick={() => setActive(index)}
-              aria-label={`Ver foto ${index + 1}`}
-            />
-          ))}
-        </div>
+        {photo.uploaderName && (
+          <span className="carousel-credit">Enviada por {photo.uploaderName}</span>
+        )}
+        {photos.length > 1 && (
+          <>
+            <button className="carousel-arrow left" onClick={previous} aria-label="Foto anterior">←</button>
+            <button className="carousel-arrow right" onClick={next} aria-label="Próxima foto">→</button>
+            <div className="carousel-dots" aria-label="Selecionar foto">
+              {photos.slice(0, 12).map((item, index) => (
+                <button
+                  key={item.id}
+                  className={index === active ? "dot active" : "dot"}
+                  onClick={() => setActive(index)}
+                  aria-label={`Ver foto ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

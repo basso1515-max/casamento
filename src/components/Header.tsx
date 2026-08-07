@@ -5,6 +5,7 @@ const links = [
   ["/", "Início"],
   ["/vestimenta", "Vestimenta"],
   ["/presentes", "Presentes"],
+  ["/enviar", "Enviar fotos"],
 ];
 
 export default function Header() {

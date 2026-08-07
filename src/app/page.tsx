@@ -2,8 +2,14 @@ import Link from "next/link";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import PhotoGallery from "@/components/PhotoGallery";
 import { siteConfig } from "@/data/site";
+import { getPublicPhotos } from "@/lib/photos";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const photos = await getPublicPhotos();
+  const carouselPhotos = photos.slice(0, Math.min(photos.length, 12));
+
   return (
     <main>
       <section className="hero">
@@ -13,13 +19,13 @@ export default function Home() {
         <p className="hero-copy">{siteConfig.subtitle}</p>
       </section>
 
-      <PhotoCarousel />
+      <PhotoCarousel photos={carouselPhotos} />
 
       <section className="share-strip">
         <div>
           <span className="eyebrow">Uma história vista por muitos olhos</span>
           <h2>Compartilhe suas fotos conosco</h2>
-          <p>Durante o casamento, convidados com o código poderão enviar suas próprias fotos para nossa coleção.</p>
+          <p>Seu código pessoal identifica você e coloca suas fotos diretamente neste álbum coletivo.</p>
         </div>
         <Link href="/enviar" className="button-primary">Enviar fotos</Link>
       </section>
@@ -27,8 +33,8 @@ export default function Home() {
       <section className="section gallery-section">
         <span className="eyebrow">Memórias</span>
         <h2>Galeria do casamento</h2>
-        <p className="section-intro">Aqui ficarão reunidos nossos registros favoritos e, depois, as fotos compartilhadas pelos convidados.</p>
-        <PhotoGallery />
+        <p className="section-intro">As fotos compartilhadas pelos convidados aparecem aqui automaticamente, sempre com o nome de quem registrou aquele momento.</p>
+        <PhotoGallery photos={photos} />
       </section>
     </main>
   );
