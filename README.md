@@ -1,49 +1,65 @@
-# Site de casamento — Cottagecore
+# Site de Casamento — Estilo Cottagecore
 
-Starter em Next.js + TypeScript para um site de casamento colaborativo.
+Um site interativo, colaborativo e personalizado, desenvolvido para centralizar as informações do casamento e proporcionar uma experiência acolhedora aos convidados.
 
-## Requisitos
+---
 
-- Node.js 20.9 ou superior
-- npm, pnpm, yarn ou bun
+## Por que este projeto foi criado?
 
-## Rodar localmente
+Organizar um casamento vai muito além de enviar convites: envolve compartilhar momentos, alinhar expectativas (como o *dress code*) e criar memórias inesquecíveis. 
 
-```bash
-npm install
-npm run dev
-```
+A proposta deste site é ir além de uma simples página informativa:
+- **Centralizar tudo em um só lugar:** Informações da cerimônia, lista de presentes e orientações sobre trajes.
+- **Criar uma experiência colaborativa:** Permitir que os convidados enviem suas próprias fotos do grande dia diretamente no site, gerando um álbum coletivo e interativo.
+- **Transmitir a essência do casal:** Design personalizado com estética *Cottagecore* (tons terrosos, elementos naturais e sensação de aconchego).
 
-Abra http://localhost:3000.
+---
 
-## Personalização rápida
+## O que foi feito & Funcionalidades
 
-Altere `src/data/site.ts` para definir:
+### Design & Identidade Visual
+- **Estética Cottagecore:** Paleta de cores suave, tipografia delicada e layout responsivo ajustado para dispositivos móveis e desktop.
 
-- nomes do casal
-- data
-- local
-- subtítulo
+### Galeria & Experiência Visual
+- **Home Responsiva:** Carrossel de fotos principal com navegação automática e manual.
+- **Galeria de Fotos:** Grade interativa com visualização detalhada em *lightbox*.
 
-As imagens de demonstração ficam em `public/images` e podem ser substituídas por JPG, PNG, WebP ou AVIF.
+### Páginas Informativas
+- **Guia de Vestimenta (*Dress Code*):** Página dedicada a orientar os convidados sobre a paleta e estilo Cottagecore.
+- **Lista de Presentes:** Seção organizada para direcionar os presentes do casal.
 
-## Já implementado
+### Upload Colaborativo de Fotos (Em evolução)
+- Interface pronta para recebimento de fotos enviadas pelos convidados via token único de acesso.
 
-- Home responsiva
-- carrossel automático e manual
-- galeria clicável com lightbox
-- página de vestimenta Cottagecore
-- página de presentes
-- interface inicial para token/upload
-- paleta e tipografia da identidade visual
+---
 
-## Próxima etapa
+## Tecnologias Utilizadas
 
-Conectar Supabase:
+- **[Next.js](https://nextjs.org/)** — Framework React para alta performance e boa renderização.
+- **[TypeScript](https://www.typescriptlang.org/)** — Tipagem estática para maior segurança e facilidade de manutenção.
+- **CSS / Estilização customizada** — Fidelidade à identidade visual Cottagecore.
 
-1. Banco `upload_tokens`
-2. Banco `photos`
-3. Storage bucket de fotos
-4. validação de token no servidor
-5. URL assinada para upload direto
-6. tela de moderação/aprovação
+---
+
+## Próximas Etapas (Back-end & Infraestrutura)
+
+Para viabilizar o envio em tempo real das fotos dos convidados, a próxima fase é a integração com o **Supabase**:
+
+1. **Modelagem de Dados:** Criação das tabelas `upload_tokens` e `photos`.
+2. **Armazenamento de Mídia:** Configuração do *Storage Bucket* para guardar as imagens enviadas.
+3. **Autenticação e Segurança:** Validação de tokens no servidor e geração de URLs assinadas para uploads diretos e seguros.
+4. **Painel de Moderação:** Interface administrativa para aprovação prévia das fotos antes de exibí-las na galeria pública.
+
+---
+
+## Como Rodar o Projeto Localmente
+
+### Requisitos
+- **Node.js** `20.9` ou superior
+- Gerenciador de pacotes (`npm`, `pnpm`, `yarn` ou `bun`)
+
+### Passo a passo
+
+1. **Instale as dependências:**
+   ```bash
+   npm install
