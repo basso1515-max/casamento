@@ -6,18 +6,15 @@ import type { WeddingPhoto } from "@/types/photo";
 
 type Props = {
   photos: WeddingPhoto[];
+  renderSafe?: boolean;
 };
 
 type SlidePosition = "previous" | "current" | "next";
 
-export default function PhotoCarousel({ photos }: Props) {
+export default function PhotoCarousel({ photos, renderSafe = false }: Props) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (active >= photos.length) setActive(0);
-  }, [active, photos.length]);
 
   useEffect(() => {
     if (photos.length <= 1 || paused) return;
@@ -25,7 +22,9 @@ export default function PhotoCarousel({ photos }: Props) {
     if (window.matchMedia("(max-width: 760px), (pointer: coarse)").matches) return;
 
     const timer = window.setInterval(() => {
-      setActive((current) => (current + 1) % photos.length);
+      setActive((current) =>
+        ((current < photos.length ? current : 0) + 1) % photos.length,
+      );
     }, 6000);
 
     return () => window.clearInterval(timer);
@@ -33,24 +32,36 @@ export default function PhotoCarousel({ photos }: Props) {
 
   if (!photos.length) return null;
 
+  const activeIndex = active < photos.length ? active : 0;
   const previous = () =>
-    setActive((current) => (current - 1 + photos.length) % photos.length);
-  const next = () => setActive((current) => (current + 1) % photos.length);
+    setActive((current) => {
+      const currentIndex = current < photos.length ? current : 0;
+      return (currentIndex - 1 + photos.length) % photos.length;
+    });
+  const next = () =>
+    setActive((current) => {
+      const currentIndex = current < photos.length ? current : 0;
+      return (currentIndex + 1) % photos.length;
+    });
 
-  const previousIndex = (active - 1 + photos.length) % photos.length;
-  const nextIndex = (active + 1) % photos.length;
+  const previousIndex = (activeIndex - 1 + photos.length) % photos.length;
+  const nextIndex = (activeIndex + 1) % photos.length;
   const slides: Array<{ index: number; position: SlidePosition }> =
-    photos.length === 1
-      ? [{ index: active, position: "current" }]
+    photos.length === 1 || renderSafe
+      ? [{ index: activeIndex, position: "current" }]
       : [
           { index: previousIndex, position: "previous" },
-          { index: active, position: "current" },
+          { index: activeIndex, position: "current" },
           { index: nextIndex, position: "next" },
         ];
 
   return (
     <section
-      className={photos.length === 1 ? "carousel carousel-single" : "carousel"}
+      className={
+        photos.length === 1 || renderSafe
+          ? "carousel carousel-single"
+          : "carousel"
+      }
       aria-label="Fotos mais visualizadas"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -158,10 +169,10 @@ export default function PhotoCarousel({ photos }: Props) {
                 <button
                   type="button"
                   key={item.id}
-                  className={index === active ? "dot active" : "dot"}
+                  className={index === activeIndex ? "dot active" : "dot"}
                   onClick={() => setActive(index)}
                   aria-label={`Ver foto ${index + 1}`}
-                  aria-current={index === active ? "true" : undefined}
+                  aria-current={index === activeIndex ? "true" : undefined}
                 />
               ))}
             </div>
