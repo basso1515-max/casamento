@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { WeddingPhoto } from "@/types/photo";
 
 type Props = {
@@ -13,6 +13,7 @@ type SlidePosition = "previous" | "current" | "next";
 export default function PhotoCarousel({ photos }: Props) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (active >= photos.length) setActive(0);
@@ -21,6 +22,7 @@ export default function PhotoCarousel({ photos }: Props) {
   useEffect(() => {
     if (photos.length <= 1 || paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(max-width: 760px), (pointer: coarse)").matches) return;
 
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % photos.length);
@@ -58,6 +60,19 @@ export default function PhotoCarousel({ photos }: Props) {
           setPaused(false);
         }
       }}
+      onTouchStart={(event) => {
+        touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStartX.current;
+        touchStartX.current = null;
+        if (start === null) return;
+
+        const distance = (event.changedTouches[0]?.clientX ?? start) - start;
+        if (Math.abs(distance) < 48) return;
+        if (distance > 0) previous();
+        else next();
+      }}
     >
       <div className="carousel-stage">
         {slides.map(({ index, position }) => {
@@ -76,6 +91,7 @@ export default function PhotoCarousel({ photos }: Props) {
               }
               priority={position === "current"}
               unoptimized={photo.src.endsWith(".svg")}
+              draggable={false}
             />
           );
 
