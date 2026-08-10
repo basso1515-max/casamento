@@ -9,6 +9,8 @@ type Props = {
   photos: WeddingPhoto[];
 };
 
+const GALLERY_PAGE_SIZE = 24;
+
 function formatUploadedAt(value?: string) {
   if (!value) return null;
   try {
@@ -24,7 +26,9 @@ function formatUploadedAt(value?: string) {
 
 export default function PhotoGallery({ photos }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(GALLERY_PAGE_SIZE);
   const trackedViews = useRef(new Set<string>());
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (selected === null) return;
@@ -61,6 +65,16 @@ export default function PhotoGallery({ photos }: Props) {
 
   useEffect(() => {
     if (selected === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selected]);
+
+  useEffect(() => {
+    if (selected === null) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelected(null);
       if (event.key === "ArrowRight") {
@@ -86,11 +100,20 @@ export default function PhotoGallery({ photos }: Props) {
 
   const selectedPhoto = selected === null ? null : photos[selected];
   const formattedDate = formatUploadedAt(selectedPhoto?.uploadedAt);
+  const visiblePhotos = photos.slice(0, visibleCount);
+  const showPrevious = () =>
+    setSelected((current) =>
+      current === null ? 0 : (current - 1 + photos.length) % photos.length,
+    );
+  const showNext = () =>
+    setSelected((current) =>
+      current === null ? 0 : (current + 1) % photos.length,
+    );
 
   return (
     <>
       <div className="gallery-grid">
-        {photos.map((photo, index) => (
+        {visiblePhotos.map((photo, index) => (
           <button
             type="button"
             className="gallery-card"
@@ -111,8 +134,38 @@ export default function PhotoGallery({ photos }: Props) {
         ))}
       </div>
 
+      {visibleCount < photos.length && (
+        <button
+          type="button"
+          className="button-secondary gallery-load-more"
+          onClick={() => setVisibleCount((current) => current + GALLERY_PAGE_SIZE)}
+        >
+          Mostrar mais fotos
+        </button>
+      )}
+
       {selectedPhoto && (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Foto ampliada" onClick={() => setSelected(null)}>
+        <div
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto ampliada"
+          onClick={() => setSelected(null)}
+          onTouchStart={(event) => {
+            touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+          }}
+          onTouchEnd={(event) => {
+            const start = touchStartX.current;
+            touchStartX.current = null;
+            if (start === null) return;
+
+            const distance = (event.changedTouches[0]?.clientX ?? start) - start;
+            if (Math.abs(distance) < 48) return;
+            event.stopPropagation();
+            if (distance > 0) showPrevious();
+            else showNext();
+          }}
+        >
           <button
             type="button"
             className="lightbox-close"
@@ -131,6 +184,26 @@ export default function PhotoGallery({ photos }: Props) {
                 unoptimized={selectedPhoto.src.endsWith(".svg")}
               />
             </div>
+            {photos.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="lightbox-nav previous"
+                  onClick={showPrevious}
+                  aria-label="Foto anterior"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  className="lightbox-nav next"
+                  onClick={showNext}
+                  aria-label="Próxima foto"
+                >
+                  →
+                </button>
+              </>
+            )}
             {selectedPhoto.uploaderName && (
               <div className="lightbox-caption">
                 <strong>Enviada por {selectedPhoto.uploaderName}</strong>

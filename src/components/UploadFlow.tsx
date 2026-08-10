@@ -275,11 +275,14 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
           type="text"
           placeholder="Ex.: FLOR-A8K2-9PQR"
           autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          enterKeyHint="go"
           value={token}
           onChange={(event) => setToken(event.target.value.toUpperCase())}
           disabled={validating}
         />
-        {error && <p className="form-error">{error}</p>}
+        {error && <p className="form-error" aria-live="polite">{error}</p>}
         <button className="button-primary" disabled={validating || token.trim().length < 8}>
           {validating ? "Verificando…" : "Continuar"}
         </button>
@@ -305,7 +308,7 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
             {remaining !== null && ` · ${remaining} restante${remaining === 1 ? "" : "s"}`}
           </small>
         </div>
-        <button className="text-button" onClick={changeGuest} disabled={uploading}>Trocar código</button>
+        <button type="button" className="text-button" onClick={changeGuest} disabled={uploading}>Trocar código</button>
       </div>
 
       <label className="photo-picker">
@@ -324,17 +327,24 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
         />
       </label>
 
-      {selectionError && <p className="form-error centered">{selectionError}</p>}
-      {error && <p className="form-error centered">{error}</p>}
+      {selectionError && <p className="form-error centered" aria-live="polite">{selectionError}</p>}
+      {error && <p className="form-error centered" aria-live="polite">{error}</p>}
 
-      {previews.length > 0 && (
-        <div className="upload-preview-grid">
-          {previews.map((preview, index) => (
-            <div className="upload-preview" key={`${preview.file.name}-${preview.file.lastModified}`}>
-              <img src={preview.url} alt={`Prévia de ${preview.file.name}`} />
-              <button type="button" onClick={() => removeFile(index)} disabled={uploading} aria-label={`Remover ${preview.file.name}`}>×</button>
-            </div>
-          ))}
+      {files.length > 0 && (
+        <div className="upload-selection-bar">
+          <p aria-live="polite">
+            <strong>{files.length}</strong> foto{files.length === 1 ? "" : "s"} selecionada{files.length === 1 ? "" : "s"}
+          </p>
+          <button
+            type="button"
+            className="button-primary upload-submit"
+            onClick={sendPhotos}
+            disabled={uploading}
+          >
+            {uploading
+              ? "Enviando…"
+              : `Enviar ${files.length} foto${files.length === 1 ? "" : "s"}`}
+          </button>
         </div>
       )}
 
@@ -345,12 +355,15 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
         </div>
       )}
 
-      {files.length > 0 && (
-        <button className="button-primary upload-submit" onClick={sendPhotos} disabled={uploading}>
-          {uploading
-            ? "Enviando…"
-            : `Enviar ${files.length} foto${files.length === 1 ? "" : "s"}`}
-        </button>
+      {previews.length > 0 && (
+        <div className="upload-preview-grid">
+          {previews.map((preview, index) => (
+            <div className="upload-preview" key={`${preview.file.name}-${preview.file.lastModified}`}>
+              <img src={preview.url} alt={`Prévia de ${preview.file.name}`} />
+              <button type="button" onClick={() => removeFile(index)} disabled={uploading} aria-label={`Remover ${preview.file.name}`}>×</button>
+            </div>
+          ))}
+        </div>
       )}
 
       {result && (
