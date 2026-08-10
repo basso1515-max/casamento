@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Lora } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -29,7 +30,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <Script id="android-render-safe" strategy="beforeInteractive">
+          {`if (/Android/i.test(navigator.userAgent) || new URLSearchParams(location.search).get("android-safe") === "1") document.documentElement.classList.add("android-render-safe");`}
+        </Script>
+      </head>
       <body className={`${cormorant.variable} ${lora.variable}`}>
         <Header />
         {children}

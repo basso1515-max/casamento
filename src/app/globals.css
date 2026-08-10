@@ -585,3 +585,137 @@ button:disabled { opacity: .5; cursor: not-allowed; transform: none !important; 
   .upload-preview-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-photo-grid { grid-template-columns: 1fr; }
 }
+
+/*
+ * Alguns aparelhos Android/MIUI corrompem tiles da página ao rasterizar SVGs
+ * grandes junto de camadas com recorte, filtros e composição acelerada. A
+ * classe é aplicada antes da primeira pintura em Android e mantém um caminho
+ * de renderização deliberadamente simples para esses aparelhos.
+ */
+html.android-render-safe {
+  overflow-x: hidden;
+  scroll-behavior: auto;
+}
+
+html.android-render-safe body {
+  overflow-x: hidden;
+  background: var(--cream);
+}
+
+html.android-render-safe body *,
+html.android-render-safe body *::before,
+html.android-render-safe body *::after {
+  animation: none !important;
+  transition: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  perspective: none !important;
+}
+
+html.android-render-safe .site-header {
+  position: relative;
+  top: auto;
+  z-index: auto;
+  background: var(--paper);
+  box-shadow: none;
+}
+
+html.android-render-safe .carousel {
+  width: calc(100% - 24px);
+  contain: none;
+  overflow: visible;
+}
+
+html.android-render-safe .carousel-stage {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  padding: 0 0 58px;
+  contain: none;
+  isolation: auto;
+}
+
+html.android-render-safe .carousel-stage::before,
+html.android-render-safe .carousel-stage::after,
+html.android-render-safe .carousel-slide.previous,
+html.android-render-safe .carousel-slide.next,
+html.android-render-safe .carousel-side-shade,
+html.android-render-safe .carousel-wash {
+  display: none !important;
+}
+
+html.android-render-safe .carousel-slide.current,
+html.android-render-safe .carousel-single .carousel-slide.current {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+html.android-render-safe .carousel-arrow {
+  top: auto;
+  bottom: 4px;
+  transform: none;
+  box-shadow: none;
+  background: var(--paper);
+}
+
+html.android-render-safe .carousel-arrow:hover {
+  transform: none;
+}
+
+html.android-render-safe .carousel-arrow.left {
+  left: 0;
+}
+
+html.android-render-safe .carousel-arrow.right {
+  right: 0;
+}
+
+html.android-render-safe .carousel-dots {
+  right: 52px;
+  bottom: 9px;
+  left: 52px;
+  justify-content: center;
+  transform: none;
+}
+
+html.android-render-safe .dot.active::after {
+  width: 12px;
+  height: 12px;
+  transform: none;
+}
+
+html.android-render-safe .carousel-credit {
+  border: 0;
+  background: var(--forest);
+}
+
+html.android-render-safe .gallery-card,
+html.android-render-safe .lightbox-content,
+html.android-render-safe .lightbox-photo {
+  contain: none;
+  isolation: auto;
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.android-render-safe .gallery-credit {
+  background: var(--forest);
+}
+
+html.android-render-safe .lightbox {
+  background: var(--forest);
+}
+
+html.android-render-safe .upload-selection-bar {
+  position: static;
+  box-shadow: none;
+}

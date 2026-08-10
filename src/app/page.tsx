@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import PhotoGallery from "@/components/PhotoGallery";
 import { siteConfig } from "@/data/site";
@@ -6,8 +7,19 @@ import { getPublicPhotos } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const photos = await getPublicPhotos();
+type HomeProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const [photos, requestHeaders, query] = await Promise.all([
+    getPublicPhotos(),
+    headers(),
+    searchParams,
+  ]);
+  const userAgent = requestHeaders.get("user-agent") || "";
+  const renderSafe =
+    /Android/i.test(userAgent) || query["android-safe"] === "1";
   const carouselPhotos = [...photos]
     .sort((first, second) => {
       if (second.viewCount !== first.viewCount) {
@@ -27,7 +39,7 @@ export default async function Home() {
         <p className="hero-copy">{siteConfig.subtitle}</p>
       </section>
 
-      <PhotoCarousel photos={carouselPhotos} />
+      <PhotoCarousel photos={carouselPhotos} renderSafe={renderSafe} />
 
       <section className="share-strip">
         <div>

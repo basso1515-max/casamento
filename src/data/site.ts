@@ -6,10 +6,10 @@ export const siteConfig = {
 };
 
 export const demoPhotos = [
-  { src: "/images/demo-1.svg", alt: "Espaço reservado para uma foto do casal" },
-  { src: "/images/demo-2.svg", alt: "Espaço reservado para uma foto do casal" },
-  { src: "/images/demo-3.svg", alt: "Espaço reservado para uma foto do casal" },
-  { src: "/images/demo-4.svg", alt: "Espaço reservado para uma foto do casal" },
-  { src: "/images/demo-5.svg", alt: "Espaço reservado para uma foto do casal" },
-  { src: "/images/demo-6.svg", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-1.png", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-2.png", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-3.png", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-4.png", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-5.png", alt: "Espaço reservado para uma foto do casal" },
+  { src: "/images/demo-6.png", alt: "Espaço reservado para uma foto do casal" },
 ];
