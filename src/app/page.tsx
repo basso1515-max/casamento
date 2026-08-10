@@ -8,7 +8,15 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const photos = await getPublicPhotos();
-  const carouselPhotos = photos.slice(0, Math.min(photos.length, 12));
+  const carouselPhotos = [...photos]
+    .sort((first, second) => {
+      if (second.viewCount !== first.viewCount) {
+        return second.viewCount - first.viewCount;
+      }
+
+      return (second.uploadedAt || "").localeCompare(first.uploadedAt || "");
+    })
+    .slice(0, Math.min(photos.length, 12));
 
   return (
     <main>

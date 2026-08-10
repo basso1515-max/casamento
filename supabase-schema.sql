@@ -31,6 +31,14 @@ create index if not exists photos_uploaded_at_idx
 create index if not exists photos_token_id_idx
   on public.photos (token_id);
 
+-- Visualizações intencionais: incrementadas quando a foto é ampliada na galeria.
+alter table public.photos
+  add column if not exists view_count bigint not null default 0
+  check (view_count >= 0);
+
+create index if not exists photos_view_count_idx
+  on public.photos (view_count desc, uploaded_at desc);
+
 -- O navegador nunca consulta essas tabelas diretamente.
 -- Toda leitura/escrita passa pelas rotas do Next.js usando a Secret Key.
 alter table public.upload_tokens enable row level security;
@@ -144,6 +152,32 @@ $$;
 
 revoke all on function public.delete_photo_record(uuid) from public, anon, authenticated;
 grant execute on function public.delete_photo_record(uuid) to service_role;
+
+-- Registra uma visualização e devolve o novo total de forma atômica.
+create or replace function public.increment_photo_view(p_photo_id uuid)
+returns bigint
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_view_count bigint;
+begin
+  update public.photos
+     set view_count = view_count + 1
+   where id = p_photo_id
+  returning view_count into v_view_count;
+
+  if not found then
+    raise exception 'PHOTO_NOT_FOUND';
+  end if;
+
+  return v_view_count;
+end;
+$$;
+
+revoke all on function public.increment_photo_view(uuid) from public, anon, authenticated;
+grant execute on function public.increment_photo_view(uuid) to service_role;
 
 -- Bucket público para leitura das fotos. Uploads continuam autorizados
 -- individualmente por signed upload URLs geradas no servidor.
