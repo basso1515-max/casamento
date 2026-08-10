@@ -174,9 +174,14 @@ export default function PhotoGallery({ photos }: Props) {
           >
             ×
           </button>
-          <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="lightbox-content"
+            data-photo-id={selectedPhoto.id}
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="lightbox-photo">
               <Image
+                key={selectedPhoto.id}
                 src={selectedPhoto.src}
                 alt={selectedPhoto.alt}
                 fill
