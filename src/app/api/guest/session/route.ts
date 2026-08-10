@@ -25,7 +25,7 @@ export async function GET() {
   try {
     const session = await getGuestSession();
     if (!session) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false });
     }
 
     const token = await getTokenById(session.tokenId);

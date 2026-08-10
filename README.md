@@ -6,6 +6,7 @@ Site em Next.js para reunir as informações do casamento e manter um álbum col
 
 - Home responsiva, carrossel e galeria com lightbox
 - Páginas de vestimenta e presentes
+- Lista de presentes com link para loja e contribuições de experiência via PIX/QR Code
 - Tokens individuais armazenados apenas como hash
 - Sessões de convidado e administrador em cookies HTTP-only
 - Upload múltiplo direto para o Supabase Storage por URL assinada
@@ -35,9 +36,14 @@ Site em Next.js para reunir as informações do casamento e manter um álbum col
    SUPABASE_SECRET_KEY=sb_secret_...
    ADMIN_PASSWORD=uma-senha-administrativa-forte
    SESSION_SECRET=um-segredo-aleatorio-com-pelo-menos-32-caracteres
+   PIX_KEY=chave-pix-exibida-aos-convidados
+   PIX_RECIPIENT_NAME=nome-do-favorecido
+   PIX_CITY=cidade-do-favorecido
+   PIX_BANK=nome-do-banco
+   SUPPORT_URL=https://wa.me/55DDDNUMERO
    ```
 
-   `SUPABASE_SECRET_KEY`, `ADMIN_PASSWORD` e `SESSION_SECRET` são exclusivos do servidor e nunca devem ser enviados ao navegador ou versionados.
+   `SUPABASE_SECRET_KEY`, `ADMIN_PASSWORD` e `SESSION_SECRET` são exclusivos do servidor e nunca devem ser enviados ao navegador ou versionados. Os dados PIX aparecem na página de presentes; `SUPPORT_URL` pode ser um link HTTPS (como WhatsApp) ou `mailto:`.
 
 3. No Supabase, abra o SQL Editor e execute todo o arquivo `supabase-schema.sql`. Ele cria as tabelas `upload_tokens` e `photos`, as funções transacionais e o bucket público `casamento-fotos`.
 
@@ -51,7 +57,7 @@ Site em Next.js para reunir as informações do casamento e manter um álbum col
 
 ## Configuração na Vercel
 
-Cadastre as quatro variáveis da seção anterior em **Preview** e **Production**. Depois de criar ou alterar variáveis, gere um novo deployment: deployments existentes não recebem valores adicionados posteriormente.
+Cadastre as variáveis da seção anterior em **Preview** e **Production**. Depois de criar ou alterar variáveis, gere um novo deployment: deployments existentes não recebem valores adicionados posteriormente.
 
 O valor de `NEXT_PUBLIC_SUPABASE_URL` deve ser a URL do projeto, terminando em `.supabase.co`; `https://supabase.com` não é uma URL de projeto válida.
 

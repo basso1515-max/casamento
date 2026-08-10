@@ -7,6 +7,10 @@ export default async function EnviarPage({
 }) {
   const params = await searchParams;
   const initialToken = typeof params.t === "string" ? params.t : undefined;
+  const configuredSupportUrl = process.env.SUPPORT_URL?.trim();
+  const supportUrl = configuredSupportUrl && /^(https?:\/\/|mailto:)/i.test(configuredSupportUrl)
+    ? configuredSupportUrl
+    : undefined;
 
   return (
     <main className="inner-page upload-page">
@@ -15,7 +19,7 @@ export default async function EnviarPage({
         <h1>Compartilhe suas fotos</h1>
         <p>Use seu código pessoal para enviar os momentos que você registrou. Assim que o envio terminar, eles entram no álbum do casamento.</p>
       </section>
-      <UploadFlow initialToken={initialToken} />
+      <UploadFlow initialToken={initialToken} supportUrl={supportUrl} />
     </main>
   );
 }

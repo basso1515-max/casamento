@@ -38,6 +38,19 @@ function formatBytes(value: number | null) {
   return `${(value / 1024 / 1024).toFixed(1)} MB`;
 }
 
+async function fetchDashboardData() {
+  const [tokenResponse, photoResponse] = await Promise.all([
+    fetch("/api/admin/tokens", { cache: "no-store" }),
+    fetch("/api/admin/photos", { cache: "no-store" }),
+  ]);
+
+  if (tokenResponse.status === 401 || photoResponse.status === 401) return null;
+
+  const tokenData = await readPayload<{ tokens: TokenRow[] }>(tokenResponse);
+  const photoData = await readPayload<{ photos: AdminPhoto[] }>(photoResponse);
+  return { tokens: tokenData.tokens, photos: photoData.photos };
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [tokens, setTokens] = useState<TokenRow[]>([]);
@@ -51,20 +64,14 @@ export default function AdminDashboard() {
   const [notice, setNotice] = useState("");
 
   const loadData = useCallback(async () => {
-    setError("");
     try {
-      const [tokenResponse, photoResponse] = await Promise.all([
-        fetch("/api/admin/tokens", { cache: "no-store" }),
-        fetch("/api/admin/photos", { cache: "no-store" }),
-      ]);
-      if (tokenResponse.status === 401 || photoResponse.status === 401) {
+      const data = await fetchDashboardData();
+      if (!data) {
         router.push("/admin/login");
         return;
       }
-      const tokenData = await readPayload<{ tokens: TokenRow[] }>(tokenResponse);
-      const photoData = await readPayload<{ photos: AdminPhoto[] }>(photoResponse);
-      setTokens(tokenData.tokens);
-      setPhotos(photoData.photos);
+      setTokens(data.tokens);
+      setPhotos(data.photos);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Falha ao carregar painel.");
     } finally {
@@ -73,8 +80,31 @@ export default function AdminDashboard() {
   }, [router]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+
+    fetchDashboardData()
+      .then((data) => {
+        if (cancelled) return;
+        if (!data) {
+          router.push("/admin/login");
+          return;
+        }
+        setTokens(data.tokens);
+        setPhotos(data.photos);
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setError(loadError instanceof Error ? loadError.message : "Falha ao carregar painel.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   async function generate(event: FormEvent) {
     event.preventDefault();

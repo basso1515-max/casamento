@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type SessionInfo = {
   name: string;
@@ -62,11 +62,17 @@ function uploadToSignedUrl(
   });
 }
 
-export default function UploadFlow({ initialToken }: { initialToken?: string }) {
+export default function UploadFlow({
+  initialToken,
+  supportUrl,
+}: {
+  initialToken?: string;
+  supportUrl?: string;
+}) {
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [token, setToken] = useState(initialToken || "");
-  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<Preview[]>([]);
+  const previewsRef = useRef<Preview[]>([]);
   const [loadingSession, setLoadingSession] = useState(true);
   const [validating, setValidating] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -75,11 +81,11 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
   const [selectionError, setSelectionError] = useState("");
   const [result, setResult] = useState<{ sent: number; failed: number } | null>(null);
 
-  useEffect(() => {
-    const next = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
-    setPreviews(next);
-    return () => next.forEach((preview) => URL.revokeObjectURL(preview.url));
-  }, [files]);
+  const files = previews.map((preview) => preview.file);
+
+  useEffect(() => () => {
+    previewsRef.current.forEach((preview) => URL.revokeObjectURL(preview.url));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,8 +108,8 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
         } else {
           const response = await fetch("/api/guest/session", { cache: "no-store" });
           if (response.ok) {
-            const data = (await response.json()) as SessionInfo;
-            if (!cancelled) setSession(data);
+            const data = (await response.json()) as SessionInfo & { authenticated?: boolean };
+            if (!cancelled && data.authenticated !== false) setSession(data);
           }
         }
       } catch (startError) {
@@ -169,11 +175,33 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
       setSelectionError(`Envie no máximo ${MAX_SELECTION} fotos por vez.`);
       return;
     }
-    setFiles(merged);
+
+    const next = merged.map((file) => {
+      const current = previews.find(
+        (preview) =>
+          preview.file.name === file.name &&
+          preview.file.size === file.size &&
+          preview.file.lastModified === file.lastModified,
+      );
+
+      return current || { file, url: URL.createObjectURL(file) };
+    });
+    previewsRef.current = next;
+    setPreviews(next);
   }
 
   function removeFile(index: number) {
-    setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index));
+    const removed = previews[index];
+    if (removed) URL.revokeObjectURL(removed.url);
+    const next = previews.filter((_, fileIndex) => fileIndex !== index);
+    previewsRef.current = next;
+    setPreviews(next);
+  }
+
+  function clearFiles() {
+    previewsRef.current.forEach((preview) => URL.revokeObjectURL(preview.url));
+    previewsRef.current = [];
+    setPreviews([]);
   }
 
   async function refreshSession() {
@@ -244,7 +272,7 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
       }
 
       setResult({ sent, failed });
-      if (sent > 0) setFiles([]);
+      if (sent > 0) clearFiles();
       await refreshSession();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar as fotos.");
@@ -256,7 +284,7 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
   async function changeGuest() {
     await fetch("/api/guest/logout", { method: "POST" });
     setSession(null);
-    setFiles([]);
+    clearFiles();
     setResult(null);
     setProgress(0);
   }
@@ -287,6 +315,20 @@ export default function UploadFlow({ initialToken }: { initialToken?: string }) 
           {validating ? "Verificando…" : "Continuar"}
         </button>
         <small>Seu código identifica quem enviou cada foto.</small>
+        <details className="code-support">
+          <summary>Esqueci meu código</summary>
+          <p>Por segurança, o código anterior não pode ser recuperado. Peça aos noivos um novo link de acesso para continuar.</p>
+          {supportUrl && (
+            <a
+              className="button-secondary"
+              href={supportUrl}
+              target={supportUrl.startsWith("http") ? "_blank" : undefined}
+              rel={supportUrl.startsWith("http") ? "noreferrer" : undefined}
+            >
+              Falar com os noivos
+            </a>
+          )}
+        </details>
       </form>
     );
   }
