@@ -1,3 +1,29 @@
+import Image from "next/image";
+
+const outfitReferences = [
+  {
+    src: "/images/vestimenta/cottagecore-vestido-floral.jpg",
+    alt: "Convidada em um jardim usando vestido midi bege com estampa floral, mangas bufantes e bolsa de palha.",
+    eyebrow: "Romântico botânico",
+    title: "Vestidos e saias",
+    text: "Modelagens fluidas, estampas pequenas e acessórios delicados trazem o clima do campo sem perder a elegância.",
+  },
+  {
+    src: "/images/vestimenta/cottagecore-linho-colete.jpg",
+    alt: "Convidado diante de um portão de madeira usando camisa clara, colete verde-sálvia, calça de linho bege e sapatos marrons.",
+    eyebrow: "Alfaiataria leve",
+    title: "Linho e coletes",
+    text: "Camisas naturais, calças em tons claros e coletes funcionam como alternativa descontraída ao terno tradicional.",
+  },
+  {
+    src: "/images/vestimenta/cottagecore-tons-terrosos.jpg",
+    alt: "Pessoa em um pomar usando blusa bordada, colete verde-sálvia e calça ampla terracota.",
+    eyebrow: "Combinação livre",
+    title: "Camadas e tons terrosos",
+    text: "Bordados, peças amplas e sobreposições deixam espaço para uma interpretação pessoal e confortável do estilo.",
+  },
+];
+
 export default function VestimentaPage() {
   return (
     <main className="inner-page">
@@ -23,6 +49,35 @@ export default function VestimentaPage() {
             <span className="swatch cream" title="Creme" />
           </div>
           <p>Tons suaves, terrosos e botânicos funcionam muito bem. Esta paleta é inspiração, não uniforme.</p>
+        </div>
+      </section>
+
+      <section className="section outfit-inspiration" aria-labelledby="outfit-inspiration-title">
+        <div className="outfit-intro">
+          <span className="eyebrow">❦ referências visuais ❦</span>
+          <h2 id="outfit-inspiration-title">Cottagecore na prática</h2>
+          <p>Use estas combinações como ponto de partida. Não é preciso copiar o look: escolha os elementos que combinam com você.</p>
+        </div>
+
+        <div className="outfit-grid">
+          {outfitReferences.map((reference, index) => (
+            <figure className="outfit-card" key={reference.title}>
+              <div className="outfit-photo">
+                <Image
+                  src={reference.src}
+                  alt={reference.alt}
+                  fill
+                  loading={index === 1 ? "eager" : "lazy"}
+                  sizes="(max-width: 760px) calc(100vw - 24px), (max-width: 1180px) 31vw, 350px"
+                />
+              </div>
+              <figcaption>
+                <span className="eyebrow">{reference.eyebrow}</span>
+                <h3>{reference.title}</h3>
+                <p>{reference.text}</p>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
