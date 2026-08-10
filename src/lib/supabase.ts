@@ -16,6 +16,7 @@ export type PhotoRow = {
   content_type: string | null;
   size_bytes: number | null;
   uploaded_at: string;
+  view_count: number;
   token_id?: string;
   upload_tokens?: { name: string } | { name: string }[] | null;
 };
@@ -125,8 +126,15 @@ export async function updateToken(
 
 export async function listPhotos(limit = 250) {
   return restRequest<PhotoRow[]>(
-    `photos?select=id,storage_path,original_name,content_type,size_bytes,uploaded_at,token_id,upload_tokens(name)&order=uploaded_at.desc&limit=${limit}`,
+    `photos?select=id,storage_path,original_name,content_type,size_bytes,uploaded_at,view_count,token_id,upload_tokens(name)&order=uploaded_at.desc&limit=${limit}`,
   );
+}
+
+export async function incrementPhotoView(photoId: string) {
+  return restRequest<number>("rpc/increment_photo_view", {
+    method: "POST",
+    body: JSON.stringify({ p_photo_id: photoId }),
+  });
 }
 
 export function publicPhotoUrl(storagePath: string) {

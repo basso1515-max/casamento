@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { recordPhotoView } from "@/app/actions";
 import type { WeddingPhoto } from "@/types/photo";
 
 type Props = {
@@ -22,6 +24,40 @@ function formatUploadedAt(value?: string) {
 
 export default function PhotoGallery({ photos }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
+  const trackedViews = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (selected === null) return;
+
+    const photo = photos[selected];
+    if (!photo?.trackViews || trackedViews.current.has(photo.id)) return;
+
+    const storageKey = `wedding-photo-view:${photo.id}`;
+    try {
+      if (window.sessionStorage.getItem(storageKey)) {
+        trackedViews.current.add(photo.id);
+        return;
+      }
+    } catch {
+      // A contagem continua funcionando quando o navegador bloqueia storage.
+    }
+
+    trackedViews.current.add(photo.id);
+    void recordPhotoView(photo.id)
+      .then((result) => {
+        if (!result.ok) {
+          trackedViews.current.delete(photo.id);
+          return;
+        }
+
+        try {
+          window.sessionStorage.setItem(storageKey, "1");
+        } catch {
+          // O banco já registrou a visualização; o cache local é opcional.
+        }
+      })
+      .catch(() => trackedViews.current.delete(photo.id));
+  }, [photos, selected]);
 
   useEffect(() => {
     if (selected === null) return;
@@ -55,8 +91,19 @@ export default function PhotoGallery({ photos }: Props) {
     <>
       <div className="gallery-grid">
         {photos.map((photo, index) => (
-          <button className="gallery-card" key={photo.id} onClick={() => setSelected(index)}>
-            <img src={photo.src} alt={photo.alt} loading="lazy" />
+          <button
+            type="button"
+            className="gallery-card"
+            key={photo.id}
+            onClick={() => setSelected(index)}
+          >
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              fill
+              sizes="(max-width: 760px) 50vw, 33vw"
+              unoptimized={photo.src.endsWith(".svg")}
+            />
             {photo.uploaderName && (
               <span className="gallery-credit">por {photo.uploaderName}</span>
             )}
@@ -66,10 +113,23 @@ export default function PhotoGallery({ photos }: Props) {
 
       {selectedPhoto && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label="Foto ampliada" onClick={() => setSelected(null)}>
-          <button className="lightbox-close" onClick={() => setSelected(null)} aria-label="Fechar">×</button>
+          <button
+            type="button"
+            className="lightbox-close"
+            onClick={() => setSelected(null)}
+            aria-label="Fechar"
+          >
+            ×
+          </button>
           <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
             <div className="lightbox-photo">
-              <img src={selectedPhoto.src} alt={selectedPhoto.alt} />
+              <Image
+                src={selectedPhoto.src}
+                alt={selectedPhoto.alt}
+                fill
+                sizes="92vw"
+                unoptimized={selectedPhoto.src.endsWith(".svg")}
+              />
             </div>
             {selectedPhoto.uploaderName && (
               <div className="lightbox-caption">

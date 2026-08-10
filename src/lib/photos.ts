@@ -7,6 +7,8 @@ function demoFallback(): WeddingPhoto[] {
     id: `demo-${index}`,
     src: photo.src,
     alt: photo.alt,
+    viewCount: 0,
+    trackViews: false,
   }));
 }
 
@@ -29,6 +31,8 @@ export async function getPublicPhotos(): Promise<WeddingPhoto[]> {
         alt: `Foto enviada por ${uploaderName}`,
         uploaderName,
         uploadedAt: row.uploaded_at,
+        viewCount: row.view_count,
+        trackViews: true,
       };
     });
   } catch (error) {

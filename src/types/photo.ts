@@ -4,4 +4,6 @@ export type WeddingPhoto = {
   alt: string;
   uploaderName?: string;
   uploadedAt?: string;
+  viewCount: number;
+  trackViews: boolean;
 };
