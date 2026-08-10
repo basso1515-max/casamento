@@ -1,65 +1,73 @@
-# Site de Casamento — Estilo Cottagecore
+# Site de casamento — Guilherme & Sabrina
 
-Um site interativo, colaborativo e personalizado, desenvolvido para centralizar as informações do casamento e proporcionar uma experiência acolhedora aos convidados.
+Site em Next.js para reunir as informações do casamento e manter um álbum colaborativo de fotos com acesso individual por convidado.
 
----
+## Funcionalidades
 
-## Por que este projeto foi criado?
+- Home responsiva, carrossel e galeria com lightbox
+- Páginas de vestimenta e presentes
+- Tokens individuais armazenados apenas como hash
+- Sessões de convidado e administrador em cookies HTTP-only
+- Upload múltiplo direto para o Supabase Storage por URL assinada
+- Identificação de quem enviou cada foto e contador por convidado
+- Limite opcional, ativação e desativação de tokens
+- Painel administrativo para convidados, fotos e exclusões excepcionais
 
-Organizar um casamento vai muito além de enviar convites: envolve compartilhar momentos, alinhar expectativas (como o *dress code*) e criar memórias inesquecíveis. 
+## Requisitos
 
-A proposta deste site é ir além de uma simples página informativa:
-- **Centralizar tudo em um só lugar:** Informações da cerimônia, lista de presentes e orientações sobre trajes.
-- **Criar uma experiência colaborativa:** Permitir que os convidados enviem suas próprias fotos do grande dia diretamente no site, gerando um álbum coletivo e interativo.
-- **Transmitir a essência do casal:** Design personalizado com estética *Cottagecore* (tons terrosos, elementos naturais e sensação de aconchego).
+- Node.js 20.9 ou superior
+- npm
+- Projeto Supabase
+- Projeto Vercel vinculado a este repositório
 
----
+## Configuração local
 
-## O que foi feito & Funcionalidades
+1. Instale as dependências:
 
-### Design & Identidade Visual
-- **Estética Cottagecore:** Paleta de cores suave, tipografia delicada e layout responsivo ajustado para dispositivos móveis e desktop.
-
-### Galeria & Experiência Visual
-- **Home Responsiva:** Carrossel de fotos principal com navegação automática e manual.
-- **Galeria de Fotos:** Grade interativa com visualização detalhada em *lightbox*.
-
-### Páginas Informativas
-- **Guia de Vestimenta (*Dress Code*):** Página dedicada a orientar os convidados sobre a paleta e estilo Cottagecore.
-- **Lista de Presentes:** Seção organizada para direcionar os presentes do casal.
-
-### Upload Colaborativo de Fotos (Em evolução)
-- Interface pronta para recebimento de fotos enviadas pelos convidados via token único de acesso.
-
----
-
-## Tecnologias Utilizadas
-
-- **[Next.js](https://nextjs.org/)** — Framework React para alta performance e boa renderização.
-- **[TypeScript](https://www.typescriptlang.org/)** — Tipagem estática para maior segurança e facilidade de manutenção.
-- **CSS / Estilização customizada** — Fidelidade à identidade visual Cottagecore.
-
----
-
-## Próximas Etapas (Back-end & Infraestrutura)
-
-Para viabilizar o envio em tempo real das fotos dos convidados, a próxima fase é a integração com o **Supabase**:
-
-1. **Modelagem de Dados:** Criação das tabelas `upload_tokens` e `photos`.
-2. **Armazenamento de Mídia:** Configuração do *Storage Bucket* para guardar as imagens enviadas.
-3. **Autenticação e Segurança:** Validação de tokens no servidor e geração de URLs assinadas para uploads diretos e seguros.
-4. **Painel de Moderação:** Interface administrativa para aprovação prévia das fotos antes de exibí-las na galeria pública.
-
----
-
-## Como Rodar o Projeto Localmente
-
-### Requisitos
-- **Node.js** `20.9` ou superior
-- Gerenciador de pacotes (`npm`, `pnpm`, `yarn` ou `bun`)
-
-### Passo a passo
-
-1. **Instale as dependências:**
    ```bash
-   npm install
+   npm ci
+   ```
+
+2. Copie `.env.example` para `.env.local` e preencha:
+
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJECT-REF.supabase.co
+   SUPABASE_SECRET_KEY=sb_secret_...
+   ADMIN_PASSWORD=uma-senha-administrativa-forte
+   SESSION_SECRET=um-segredo-aleatorio-com-pelo-menos-32-caracteres
+   ```
+
+   `SUPABASE_SECRET_KEY`, `ADMIN_PASSWORD` e `SESSION_SECRET` são exclusivos do servidor e nunca devem ser enviados ao navegador ou versionados.
+
+3. No Supabase, abra o SQL Editor e execute todo o arquivo `supabase-schema.sql`. Ele cria as tabelas `upload_tokens` e `photos`, as funções transacionais e o bucket público `casamento-fotos`.
+
+4. Inicie o projeto:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Abra `http://localhost:3000/admin/login` e entre com `ADMIN_PASSWORD`.
+
+## Configuração na Vercel
+
+Cadastre as quatro variáveis da seção anterior em **Preview** e **Production**. Depois de criar ou alterar variáveis, gere um novo deployment: deployments existentes não recebem valores adicionados posteriormente.
+
+O valor de `NEXT_PUBLIC_SUPABASE_URL` deve ser a URL do projeto, terminando em `.supabase.co`; `https://supabase.com` não é uma URL de projeto válida.
+
+## Fluxo de uso
+
+1. O administrador entra em `/admin/login`.
+2. Informa o nome do convidado e, opcionalmente, um limite de fotos.
+3. O painel gera um código e o link `/enviar?t=TOKEN`. O token em texto puro é mostrado somente nessa resposta; o banco armazena apenas seu hash.
+4. O convidado abre o link, escolhe até 20 fotos por lote e envia diretamente ao Storage.
+5. As fotos registradas aparecem automaticamente na galeria, sem fila de aprovação.
+
+## Verificação
+
+```bash
+npm run lint
+npm run build
+```
+
+Para confirmar a integração completa, gere um token de teste no painel, abra o link em uma sessão anônima ou no celular, envie uma foto e verifique sua exibição na Home.
