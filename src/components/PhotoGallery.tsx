@@ -189,7 +189,10 @@ export default function PhotoGallery({ photos }: Props) {
                 <button
                   type="button"
                   className="lightbox-nav previous"
-                  onClick={showPrevious}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    showPrevious();
+                  }}
                   aria-label="Foto anterior"
                 >
                   ←
@@ -197,7 +200,10 @@ export default function PhotoGallery({ photos }: Props) {
                 <button
                   type="button"
                   className="lightbox-nav next"
-                  onClick={showNext}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    showNext();
+                  }}
                   aria-label="Próxima foto"
                 >
                   →
