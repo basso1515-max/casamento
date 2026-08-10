@@ -17,7 +17,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { overflow-x: hidden; overflow-x: clip; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   min-width: 320px;
@@ -65,7 +65,7 @@ button, .photo-picker { touch-action: manipulation; }
 .hero-date { margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .16em; font-size: .8rem; color: var(--brown); }
 .hero-copy { max-width: 610px; margin: 15px auto 0; line-height: 1.75; color: #666555; }
 
-.carousel { width: min(1280px, 100%); margin: 0 auto; overflow: hidden; }
+.carousel { width: min(1280px, 100%); max-width: 100%; margin: 0 auto; overflow: hidden; overflow: clip; contain: paint; }
 .carousel-stage { position: relative; aspect-ratio: 16 / 8.2; min-height: 430px; padding-bottom: 34px; isolation: isolate; contain: paint; touch-action: pan-y; }
 .carousel-stage::before, .carousel-stage::after { content: ""; position: absolute; z-index: 4; top: 0; bottom: 34px; width: 11%; pointer-events: none; }
 .carousel-stage::before { left: 0; background: linear-gradient(to right, var(--cream), transparent); }

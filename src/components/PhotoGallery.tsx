@@ -176,7 +176,6 @@ export default function PhotoGallery({ photos }: Props) {
           </button>
           <div
             className="lightbox-content"
-            data-photo-id={selectedPhoto.id}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="lightbox-photo">
